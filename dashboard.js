@@ -1,151 +1,97 @@
-let rawData = [];
-
 fetch("inventory.json")
-.then(res => res.json())
+.then(response => response.json())
 .then(data => {
 
-rawData = data;
+document.getElementById("totalAssets").innerText = data.length;
 
-populateFilters();
+let assigned = 0;
+let instock = 0;
+let disposed = 0;
 
-updateDashboard(data);
+data.forEach(item => {
 
-document
-.getElementById("locationFilter")
-.addEventListener("change", applyFilter);
+const status = String(item.Status || "").toLowerCase();
 
-document
-.getElementById("statusFilter")
-.addEventListener("change", applyFilter);
-
-});
-
-function populateFilters(){
-
-const locations =
-[...new Set(rawData.map(x=>x.location))];
-
-const statuses =
-[...new Set(rawData.map(x=>x.status))];
-
-locations.forEach(x=>{
-
-locationFilter.innerHTML +=
-`<option>${x}</option>`;
+if(status.includes("assigned")) assigned++;
+if(status.includes("in stock")) instock++;
+if(status.includes("disposed")) disposed++;
 
 });
 
-statuses.forEach(x=>{
+document.getElementById("assignedAssets").innerText = assigned;
+document.getElementById("instockAssets").innerText = instock;
+document.getElementById("disposedAssets").innerText = disposed;
 
-statusFilter.innerHTML +=
-`<option>${x}</option>`;
+const statusCount = {};
 
-});
+data.forEach(item => {
 
+const status = item.Status || "Unknown";
+
+if(!statusCount[status]){
+statusCount[status] = 0;
 }
 
-function applyFilter(){
-
-let data = [...rawData];
-
-const loc =
-locationFilter.value;
-
-const stat =
-statusFilter.value;
-
-if(loc){
-
-data =
-data.filter(
-x=>x.location===loc
-);
-
-}
-
-if(stat){
-
-data =
-data.filter(
-x=>x.status===stat
-);
-
-}
-
-updateDashboard(data);
-
-}
-
-let statusChart;
-let locationChart;
-
-function updateDashboard(data){
-
-totalAssets.innerText =
-data.length;
-
-assignedCount.innerText =
-data.filter(
-x=>x.status==="Assigned"
-).length;
-
-stockCount.innerText =
-data.filter(
-x=>x.status==="In Stock"
-).length;
-
-locationCount.innerText =
-new Set(
-data.map(x=>x.location)
-).size;
-
-const statusMap={};
-
-data.forEach(x=>{
-
-statusMap[x.status] =
-(statusMap[x.status]||0)+1;
+statusCount[status]++;
 
 });
 
-const locationMap={};
+new Chart(document.getElementById("statusChart"),{
 
-data.forEach(x=>{
-
-locationMap[x.location] =
-(locationMap[x.location]||0)+1;
-
-});
-
-if(statusChart)
-statusChart.destroy();
-
-statusChart =
-new Chart(
-document.getElementById("statusChart"),
-{
 type:"pie",
+
 data:{
-labels:Object.keys(statusMap),
+labels:Object.keys(statusCount),
+
 datasets:[{
-data:Object.values(statusMap)
+data:Object.values(statusCount)
 }]
 }
+
 });
 
-if(locationChart)
-locationChart.destroy();
+const columns = Object.keys(data[0]);
 
-locationChart =
-new Chart(
-document.getElementById("locationChart"),
-{
-type:"bar",
-data:{
-labels:Object.keys(locationMap),
-datasets:[{
-data:Object.values(locationMap)
-}]
+document.querySelector("#inventoryTable thead").innerHTML =
+"<tr>" +
+columns.map(col => `<th>${col}</th>`).join("") +
+"</tr>";
+
+function renderTable(rows){
+
+document.querySelector("#inventoryTable tbody").innerHTML =
+rows.map(row =>
+
+"<tr>" +
+
+columns.map(col =>
+`<td>${row[col] || ""}</td>`
+).join("")
+
++
+
+"</tr>"
+
+).join("");
+
 }
+
+renderTable(data);
+
+document
+.getElementById("searchBox")
+.addEventListener("input", function(){
+
+const q = this.value.toLowerCase();
+
+const filtered = data.filter(item =>
+JSON.stringify(item)
+.toLowerCase()
+.includes(q)
+);
+
+renderTable(filtered);
+
 });
-}
+
+});
