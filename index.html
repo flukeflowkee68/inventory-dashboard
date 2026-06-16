@@ -1,66 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Inventory Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body{
-            font-family: Arial, sans-serif;
-            padding:20px;
-        }
-        .card{
-            width:300px;
-            padding:20px;
-            border-radius:10px;
-            background:#f4f4f4;
-            margin-bottom:20px;
-        }
-    </style>
+<meta charset="utf-8">
+<title>Inventory Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f6f9;
+padding:20px;
+}
+
+h1{
+text-align:center;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+margin-bottom:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 5px rgba(0,0,0,.1);
+text-align:center;
+}
+
+.filters{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+select{
+padding:10px;
+}
+
+.chart-box{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:10px;
+box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
+</style>
+
 </head>
+
 <body>
 
 <h1>Inventory Dashboard</h1>
 
+<div class="cards">
 <div class="card">
-    <h2 id="totalAssets">0</h2>
-    <p>Total Assets</p>
+<h2 id="totalAssets">0</h2>
+Total Assets
 </div>
 
+<div class="card">
+<h2 id="assignedCount">0</h2>
+Assigned
+</div>
+
+<div class="card">
+<h2 id="stockCount">0</h2>
+In Stock
+</div>
+
+<div class="card">
+<h2 id="locationCount">0</h2>
+Locations
+</div>
+</div>
+
+<div class="filters">
+
+<select id="locationFilter">
+<option value="">All Locations</option>
+</select>
+
+<select id="statusFilter">
+<option value="">All Status</option>
+</select>
+
+</div>
+
+<div class="chart-box">
 <canvas id="statusChart"></canvas>
+</div>
 
-<script>
+<div class="chart-box">
+<canvas id="locationChart"></canvas>
+</div>
 
-const inventoryData = [
-    {status:"Assigned"},
-    {status:"Assigned"},
-    {status:"In stock"},
-    {status:"Disposed"},
-    {status:"In stock"}
-];
-
-document.getElementById("totalAssets").innerText =
-inventoryData.length;
-
-const counts = {};
-
-inventoryData.forEach(item=>{
-    counts[item.status] =
-    (counts[item.status] || 0) + 1;
-});
-
-new Chart(
-document.getElementById('statusChart'),
-{
-    type:'bar',
-    data:{
-        labels:Object.keys(counts),
-        datasets:[{
-            label:'Assets by Status',
-            data:Object.values(counts)
-        }]
-    }
-});
-</script>
+<script src="dashboard.js"></script>
 
 </body>
 </html>
