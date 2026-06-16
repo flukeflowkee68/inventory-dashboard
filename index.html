@@ -2,106 +2,64 @@
 <html>
 <head>
     <title>Inventory Dashboard</title>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
         body{
-            font-family:Arial;
+            font-family: Arial, sans-serif;
             padding:20px;
-            background:#f4f6f9;
         }
-
-        h1{
-            text-align:center;
-        }
-
-        .cards{
-            display:flex;
-            gap:20px;
-            margin-bottom:30px;
-        }
-
         .card{
-            flex:1;
-            background:white;
+            width:300px;
             padding:20px;
             border-radius:10px;
-            text-align:center;
-            box-shadow:0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        canvas{
-            background:white;
-            padding:20px;
-            border-radius:10px;
-            margin-top:20px;
+            background:#f4f4f4;
+            margin-bottom:20px;
         }
     </style>
 </head>
-
 <body>
 
 <h1>Inventory Dashboard</h1>
 
-<div class="cards">
-    <div class="card">
-        <h2 id="totalAssets">0</h2>
-        <p>Total Assets</p>
-    </div>
-
-    <div class="card">
-        <h2 id="assignedAssets">0</h2>
-        <p>Assigned</p>
-    </div>
-
-    <div class="card">
-        <h2 id="stockAssets">0</h2>
-        <p>In Stock</p>
-    </div>
+<div class="card">
+    <h2 id="totalAssets">0</h2>
+    <p>Total Assets</p>
 </div>
 
 <canvas id="statusChart"></canvas>
 
 <script>
 
-const sampleData = [
- {status:"Assigned"},
- {status:"Assigned"},
- {status:"In stock"},
- {status:"Disposed"},
- {status:"Assigned"},
- {status:"Damaged"}
+const inventoryData = [
+    {status:"Assigned"},
+    {status:"Assigned"},
+    {status:"In stock"},
+    {status:"Disposed"},
+    {status:"In stock"}
 ];
 
 document.getElementById("totalAssets").innerText =
-sampleData.length;
+inventoryData.length;
 
-document.getElementById("assignedAssets").innerText =
-sampleData.filter(x=>x.status==="Assigned").length;
+const counts = {};
 
-document.getElementById("stockAssets").innerText =
-sampleData.filter(x=>x.status==="In stock").length;
-
-const statusCount = {};
-
-sampleData.forEach(item=>{
-    statusCount[item.status] =
-    (statusCount[item.status] || 0)+1;
+inventoryData.forEach(item=>{
+    counts[item.status] =
+    (counts[item.status] || 0) + 1;
 });
 
 new Chart(
-document.getElementById("statusChart"),
+document.getElementById('statusChart'),
 {
-    type:"pie",
+    type:'bar',
     data:{
-        labels:Object.keys(statusCount),
+        labels:Object.keys(counts),
         datasets:[{
-            data:Object.values(statusCount)
+            label:'Assets by Status',
+            data:Object.values(counts)
         }]
     }
 });
-
 </script>
 
 </body>
