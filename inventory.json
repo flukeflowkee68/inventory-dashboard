@@ -1,1 +1,26 @@
-
+[
+  {
+    "inventory_number": "CH00-001",
+    "manufacturer": "LENOVO",
+    "asset_type": "Laptop",
+    "status": "Assigned",
+    "assigned_to": "John Smith",
+    "location": "BKK"
+  },
+  {
+    "inventory_number": "CH00-002",
+    "manufacturer": "CISCO",
+    "asset_type": "Switch",
+    "status": "In Stock",
+    "assigned_to": "",
+    "location": "RITSTORE"
+  },
+  {
+    "inventory_number": "CH00-003",
+    "manufacturer": "HP",
+    "asset_type": "Printer",
+    "status": "Assigned",
+    "assigned_to": "Jane Doe",
+    "location": "JKT"
+  }
+]
