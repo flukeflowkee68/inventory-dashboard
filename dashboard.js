@@ -1,97 +1,77 @@
-fetch("inventory.json")
-.then(response => response.json())
-.then(data => {
+Papa.parse("inventory.csv.csv", {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
 
-document.getElementById("totalAssets").innerText = data.length;
+    complete: function(results) {
 
-let assigned = 0;
-let instock = 0;
-let disposed = 0;
+        const data = results.data;
 
-data.forEach(item => {
+        document.getElementById("totalAssets").innerText = data.length;
 
-const status = String(item.Status || "").toLowerCase();
+        const assigned = data.filter(x =>
+            (x.Status || "").toLowerCase() === "assigned"
+        ).length;
 
-if(status.includes("assigned")) assigned++;
-if(status.includes("in stock")) instock++;
-if(status.includes("disposed")) disposed++;
+        const instock = data.filter(x =>
+            (x.Status || "").toLowerCase() === "in stock"
+        ).length;
 
-});
+        document.getElementById("assignedAssets").innerText = assigned;
+        document.getElementById("stockAssets").innerText = instock;
 
-document.getElementById("assignedAssets").innerText = assigned;
-document.getElementById("instockAssets").innerText = instock;
-document.getElementById("disposedAssets").innerText = disposed;
+        const statusCount = {};
 
-const statusCount = {};
+        data.forEach(item => {
 
-data.forEach(item => {
+            const status = item.Status || "Unknown";
 
-const status = item.Status || "Unknown";
+            if(!statusCount[status]){
+                statusCount[status] = 0;
+            }
 
-if(!statusCount[status]){
-statusCount[status] = 0;
-}
+            statusCount[status]++;
+        });
 
-statusCount[status]++;
+        new Chart(
+            document.getElementById("statusChart"),
+            {
+                type: "pie",
+                data: {
+                    labels: Object.keys(statusCount),
+                    datasets: [{
+                        data: Object.values(statusCount)
+                    }]
+                }
+            }
+        );
 
-});
+        let html = `
+        <table border="1" style="width:100%;border-collapse:collapse">
+        <tr>
+            <th>Inventory Number</th>
+            <th>Manufacturer</th>
+            <th>Model</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>Location</th>
+        </tr>`;
 
-new Chart(document.getElementById("statusChart"),{
+        data.forEach(row => {
 
-type:"pie",
+            html += `
+            <tr>
+                <td>${row["Inventory number"] || ""}</td>
+                <td>${row["Manufacture"] || ""}</td>
+                <td>${row["Model"] || ""}</td>
+                <td>${row["Status"] || ""}</td>
+                <td>${row["Assigned to (if any)"] || ""}</td>
+                <td>${row["Location"] || ""}</td>
+            </tr>`;
+        });
 
-data:{
-labels:Object.keys(statusCount),
+        html += "</table>";
 
-datasets:[{
-data:Object.values(statusCount)
-}]
-}
-
-});
-
-const columns = Object.keys(data[0]);
-
-document.querySelector("#inventoryTable thead").innerHTML =
-"<tr>" +
-columns.map(col => `<th>${col}</th>`).join("") +
-"</tr>";
-
-function renderTable(rows){
-
-document.querySelector("#inventoryTable tbody").innerHTML =
-rows.map(row =>
-
-"<tr>" +
-
-columns.map(col =>
-`<td>${row[col] || ""}</td>`
-).join("")
-
-+
-
-"</tr>"
-
-).join("");
-
-}
-
-renderTable(data);
-
-document
-.getElementById("searchBox")
-.addEventListener("input", function(){
-
-const q = this.value.toLowerCase();
-
-const filtered = data.filter(item =>
-JSON.stringify(item)
-.toLowerCase()
-.includes(q)
-);
-
-renderTable(filtered);
-
-});
-
+        document.getElementById("inventoryTable").innerHTML = html;
+    }
 });
